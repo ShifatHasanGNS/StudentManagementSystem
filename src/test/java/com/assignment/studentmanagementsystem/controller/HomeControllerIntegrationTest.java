@@ -6,36 +6,47 @@ import com.assignment.studentmanagementsystem.repository.ManagementRepository;
 import com.assignment.studentmanagementsystem.security.UserAccount;
 import com.assignment.studentmanagementsystem.security.UserAccount.Role;
 import com.assignment.studentmanagementsystem.service.ManagementService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 // File path: src/test/java/com/assignment/studentmanagementsystem/controller/HomeControllerIntegrationTest.java
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@ActiveProfiles("test")
 class HomeControllerIntegrationTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    private WebApplicationContext context;
 
-    @MockBean
+    @MockitoBean
     private ManagementRepository managementRepository;
 
-    @MockBean
+    @MockitoBean
     private ManagementService managementService;
 
-    // --- Public endpoints ---
+    private MockMvc mockMvc;
+
+    @BeforeEach
+    void setup() {
+        mockMvc = MockMvcBuilders.webAppContextSetup(context)
+            .apply(springSecurity())
+            .build();
+    }
 
     @Test
     void rootPath_redirectsToLogin() throws Exception {
@@ -57,8 +68,6 @@ class HomeControllerIntegrationTest {
             .andExpect(status().isOk())
             .andExpect(content().string("OK"));
     }
-
-    // --- Dashboard ---
 
     @Test
     void dashboard_unauthenticated_redirectsToLogin() throws Exception {
@@ -93,8 +102,6 @@ class HomeControllerIntegrationTest {
             .andExpect(model().attribute("teacherCount", 2L))
             .andExpect(model().attribute("courseCount", 8L));
     }
-
-    // --- Profile ---
 
     @Test
     @WithMockUser(username = "student@test.com", roles = "STUDENT")
@@ -140,8 +147,6 @@ class HomeControllerIntegrationTest {
         mockMvc.perform(get("/profile"))
             .andExpect(status().is3xxRedirection());
     }
-
-    // --- Access Denied ---
 
     @Test
     @WithMockUser

@@ -2,34 +2,45 @@ package com.assignment.studentmanagementsystem.controller;
 
 import com.assignment.studentmanagementsystem.model.*;
 import com.assignment.studentmanagementsystem.service.ManagementService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 // File path: src/test/java/com/assignment/studentmanagementsystem/controller/ManagementControllerIntegrationTest.java
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@ActiveProfiles("test")
 class ManagementControllerIntegrationTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    private WebApplicationContext context;
 
-    @MockBean
+    @MockitoBean
     private ManagementService managementService;
 
-    // --- Student endpoints ---
+    private MockMvc mockMvc;
+
+    @BeforeEach
+    void setup() {
+        mockMvc = MockMvcBuilders.webAppContextSetup(context)
+            .apply(springSecurity())
+            .build();
+    }
 
     @Test
     @WithMockUser(roles = "TEACHER")
@@ -73,8 +84,6 @@ class ManagementControllerIntegrationTest {
     @Test
     @WithMockUser(roles = "TEACHER")
     void saveStudent_asTeacher_redirectsToList() throws Exception {
-        Department dept = new Department("CS", "desc");
-        dept.setId(1L);
         Student student = new Student();
         student.setId(1L);
         when(managementService.saveStudent(any())).thenReturn(student);
@@ -97,8 +106,6 @@ class ManagementControllerIntegrationTest {
             .andExpect(status().is3xxRedirection())
             .andExpect(redirectedUrl("/students"));
     }
-
-    // --- Teacher endpoints ---
 
     @Test
     @WithMockUser(roles = "TEACHER")
@@ -125,8 +132,6 @@ class ManagementControllerIntegrationTest {
             .andExpect(redirectedUrl("/teachers"));
     }
 
-    // --- Course endpoints ---
-
     @Test
     @WithMockUser(roles = "TEACHER")
     void listCourses_asTeacher_returnsOk() throws Exception {
@@ -151,8 +156,6 @@ class ManagementControllerIntegrationTest {
             .andExpect(status().is3xxRedirection())
             .andExpect(redirectedUrl("/courses"));
     }
-
-    // --- Department endpoints ---
 
     @Test
     @WithMockUser(roles = "TEACHER")

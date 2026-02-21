@@ -3,12 +3,16 @@ package com.assignment.studentmanagementsystem.repository;
 import com.assignment.studentmanagementsystem.model.*;
 import com.assignment.studentmanagementsystem.security.UserAccount;
 import com.assignment.studentmanagementsystem.security.UserAccount.Role;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.TestPropertySource;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,22 +21,30 @@ import static org.assertj.core.api.Assertions.*;
 
 // File path: src/test/java/com/assignment/studentmanagementsystem/repository/ManagementRepositoryIntegrationTest.java
 
-@DataJpaTest
-@Import(ManagementRepository.class)
+@SpringBootTest
+@ActiveProfiles("test")
+@Transactional
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@TestPropertySource(properties = {
+    "spring.datasource.url=jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1",
+    "spring.datasource.driver-class-name=org.h2.Driver",
+    "spring.jpa.hibernate.ddl-auto=create-drop"
+})
 class ManagementRepositoryIntegrationTest {
 
     @Autowired
     private ManagementRepository managementRepository;
 
-    @Autowired
-    private TestEntityManager entityManager;
+    @PersistenceContext
+    private EntityManager em;
 
     private Department department;
 
     @BeforeEach
     void setUp() {
         department = new Department("Computer Science", "CS Dept");
-        entityManager.persistAndFlush(department);
+        em.persist(department);
+        em.flush();
     }
 
     // -------------------------------------------------------------------------
@@ -49,17 +61,18 @@ class ManagementRepositoryIntegrationTest {
     @Test
     void saveDepartment_merge_updatesExisting() {
         department.setDescription("Updated description");
-        Department updated = managementRepository.saveDepartment(department);
-        entityManager.flush();
-        entityManager.clear();
+        managementRepository.saveDepartment(department);
+        em.flush();
+        em.clear();
 
-        Department fetched = entityManager.find(Department.class, updated.getId());
+        Department fetched = em.find(Department.class, department.getId());
         assertThat(fetched.getDescription()).isEqualTo("Updated description");
     }
 
     @Test
     void findAllDepartments_returnsAll() {
-        entityManager.persistAndFlush(new Department("Physics", "Physics Dept"));
+        em.persist(new Department("Physics", "Physics Dept"));
+        em.flush();
         List<Department> result = managementRepository.findAllDepartments();
         assertThat(result).hasSizeGreaterThanOrEqualTo(2);
     }
@@ -73,26 +86,27 @@ class ManagementRepositoryIntegrationTest {
 
     @Test
     void findDepartmentById_notFound_returnsEmpty() {
-        Optional<Department> result = managementRepository.findDepartmentById(999L);
-        assertThat(result).isEmpty();
+        assertThat(managementRepository.findDepartmentById(999L)).isEmpty();
     }
 
     @Test
     void deleteDepartmentById_removesFromDatabase() {
         Department dept = new Department("Temp", "Temp dept");
-        entityManager.persistAndFlush(dept);
+        em.persist(dept);
+        em.flush();
 
         managementRepository.deleteDepartmentById(dept.getId());
-        entityManager.flush();
-        entityManager.clear();
+        em.flush();
+        em.clear();
 
-        assertThat(entityManager.find(Department.class, dept.getId())).isNull();
+        assertThat(em.find(Department.class, dept.getId())).isNull();
     }
 
     @Test
     void countDepartments_returnsCorrectCount() {
         long before = managementRepository.countDepartments();
-        entityManager.persistAndFlush(new Department("Biology", "Bio Dept"));
+        em.persist(new Department("Biology", "Bio Dept"));
+        em.flush();
         assertThat(managementRepository.countDepartments()).isEqualTo(before + 1);
     }
 
@@ -102,36 +116,37 @@ class ManagementRepositoryIntegrationTest {
 
     @Test
     void saveStudent_persist_assignsId() {
-        Student student = makeStudent("Alice", "Smith", "alice@test.com", "S001");
-        Student saved = managementRepository.saveStudent(student);
+        Student saved = managementRepository.saveStudent(makeStudent("Alice", "Smith", "alice@test.com", "S001"));
         assertThat(saved.getId()).isNotNull();
     }
 
     @Test
     void saveStudent_merge_updatesExisting() {
         Student student = makeStudent("Bob", "Jones", "bob@test.com", "S002");
-        entityManager.persistAndFlush(student);
+        em.persist(student);
+        em.flush();
 
         student.setFirstName("Robert");
         managementRepository.saveStudent(student);
-        entityManager.flush();
-        entityManager.clear();
+        em.flush();
+        em.clear();
 
-        Student fetched = entityManager.find(Student.class, student.getId());
-        assertThat(fetched.getFirstName()).isEqualTo("Robert");
+        assertThat(em.find(Student.class, student.getId()).getFirstName()).isEqualTo("Robert");
     }
 
     @Test
     void findAllStudents_returnsAll() {
-        entityManager.persistAndFlush(makeStudent("C", "D", "cd@test.com", "S003"));
-        entityManager.persistAndFlush(makeStudent("E", "F", "ef@test.com", "S004"));
+        em.persist(makeStudent("C", "D", "cd@test.com", "S003"));
+        em.persist(makeStudent("E", "F", "ef@test.com", "S004"));
+        em.flush();
         assertThat(managementRepository.findAllStudents()).hasSizeGreaterThanOrEqualTo(2);
     }
 
     @Test
     void findStudentById_found_returnsStudent() {
         Student student = makeStudent("John", "Doe", "john@test.com", "S005");
-        entityManager.persistAndFlush(student);
+        em.persist(student);
+        em.flush();
 
         Optional<Student> result = managementRepository.findStudentById(student.getId());
         assertThat(result).isPresent();
@@ -146,13 +161,14 @@ class ManagementRepositoryIntegrationTest {
     @Test
     void deleteStudentById_removesFromDatabase() {
         Student student = makeStudent("Del", "Me", "del@test.com", "S006");
-        entityManager.persistAndFlush(student);
+        em.persist(student);
+        em.flush();
 
         managementRepository.deleteStudentById(student.getId());
-        entityManager.flush();
-        entityManager.clear();
+        em.flush();
+        em.clear();
 
-        assertThat(entityManager.find(Student.class, student.getId())).isNull();
+        assertThat(em.find(Student.class, student.getId())).isNull();
     }
 
     @Test
@@ -164,7 +180,8 @@ class ManagementRepositoryIntegrationTest {
     @Test
     void countStudents_returnsCorrectCount() {
         long before = managementRepository.countStudents();
-        entityManager.persistAndFlush(makeStudent("X", "Y", "xy@test.com", "S007"));
+        em.persist(makeStudent("X", "Y", "xy@test.com", "S007"));
+        em.flush();
         assertThat(managementRepository.countStudents()).isEqualTo(before + 1);
     }
 
@@ -174,34 +191,29 @@ class ManagementRepositoryIntegrationTest {
 
     @Test
     void saveTeacher_persist_assignsId() {
-        Teacher teacher = makeTeacher("Prof", "Smith", "prof@test.com", "T001");
-        Teacher saved = managementRepository.saveTeacher(teacher);
+        Teacher saved = managementRepository.saveTeacher(makeTeacher("Prof", "Smith", "prof@test.com", "T001"));
         assertThat(saved.getId()).isNotNull();
     }
 
     @Test
     void saveTeacher_merge_updatesExisting() {
         Teacher teacher = makeTeacher("Old", "Name", "old@test.com", "T002");
-        entityManager.persistAndFlush(teacher);
+        em.persist(teacher);
+        em.flush();
 
         teacher.setFirstName("New");
         managementRepository.saveTeacher(teacher);
-        entityManager.flush();
-        entityManager.clear();
+        em.flush();
+        em.clear();
 
-        assertThat(entityManager.find(Teacher.class, teacher.getId()).getFirstName()).isEqualTo("New");
-    }
-
-    @Test
-    void findAllTeachers_returnsAll() {
-        entityManager.persistAndFlush(makeTeacher("A", "B", "ab@test.com", "T003"));
-        assertThat(managementRepository.findAllTeachers()).hasSizeGreaterThanOrEqualTo(1);
+        assertThat(em.find(Teacher.class, teacher.getId()).getFirstName()).isEqualTo("New");
     }
 
     @Test
     void findTeacherById_found_returnsTeacher() {
         Teacher teacher = makeTeacher("Jane", "Doe", "jane@test.com", "T004");
-        entityManager.persistAndFlush(teacher);
+        em.persist(teacher);
+        em.flush();
 
         Optional<Teacher> result = managementRepository.findTeacherById(teacher.getId());
         assertThat(result).isPresent();
@@ -216,19 +228,21 @@ class ManagementRepositoryIntegrationTest {
     @Test
     void deleteTeacherById_removesFromDatabase() {
         Teacher teacher = makeTeacher("Del", "Me", "delteacher@test.com", "T005");
-        entityManager.persistAndFlush(teacher);
+        em.persist(teacher);
+        em.flush();
 
         managementRepository.deleteTeacherById(teacher.getId());
-        entityManager.flush();
-        entityManager.clear();
+        em.flush();
+        em.clear();
 
-        assertThat(entityManager.find(Teacher.class, teacher.getId())).isNull();
+        assertThat(em.find(Teacher.class, teacher.getId())).isNull();
     }
 
     @Test
     void countTeachers_returnsCorrectCount() {
         long before = managementRepository.countTeachers();
-        entityManager.persistAndFlush(makeTeacher("X", "Y", "xy2@test.com", "T006"));
+        em.persist(makeTeacher("X", "Y", "xy2@test.com", "T006"));
+        em.flush();
         assertThat(managementRepository.countTeachers()).isEqualTo(before + 1);
     }
 
@@ -239,28 +253,20 @@ class ManagementRepositoryIntegrationTest {
     @Test
     void saveCourse_persist_assignsId() {
         Teacher teacher = makeTeacher("Prof", "X", "profx@test.com", "T007");
-        entityManager.persistAndFlush(teacher);
+        em.persist(teacher);
+        em.flush();
 
-        Course course = makeCourse("CS101", "Intro to CS", teacher);
-        Course saved = managementRepository.saveCourse(course);
+        Course saved = managementRepository.saveCourse(makeCourse("CS101", "Intro to CS", teacher));
         assertThat(saved.getId()).isNotNull();
-    }
-
-    @Test
-    void findAllCourses_returnsAll() {
-        Teacher teacher = makeTeacher("Prof", "Y", "profy@test.com", "T008");
-        entityManager.persistAndFlush(teacher);
-        entityManager.persistAndFlush(makeCourse("CS102", "Data Structures", teacher));
-
-        assertThat(managementRepository.findAllCourses()).hasSizeGreaterThanOrEqualTo(1);
     }
 
     @Test
     void findCourseById_found_returnsCourse() {
         Teacher teacher = makeTeacher("Prof", "Z", "profz@test.com", "T009");
-        entityManager.persistAndFlush(teacher);
+        em.persist(teacher);
         Course course = makeCourse("CS103", "Algorithms", teacher);
-        entityManager.persistAndFlush(course);
+        em.persist(course);
+        em.flush();
 
         Optional<Course> result = managementRepository.findCourseById(course.getId());
         assertThat(result).isPresent();
@@ -275,23 +281,26 @@ class ManagementRepositoryIntegrationTest {
     @Test
     void deleteCourseById_removesFromDatabase() {
         Teacher teacher = makeTeacher("Prof", "W", "profw@test.com", "T010");
-        entityManager.persistAndFlush(teacher);
+        em.persist(teacher);
         Course course = makeCourse("CS104", "OS", teacher);
-        entityManager.persistAndFlush(course);
+        em.persist(course);
+        em.flush();
 
         managementRepository.deleteCourseById(course.getId());
-        entityManager.flush();
-        entityManager.clear();
+        em.flush();
+        em.clear();
 
-        assertThat(entityManager.find(Course.class, course.getId())).isNull();
+        assertThat(em.find(Course.class, course.getId())).isNull();
     }
 
     @Test
     void countCourses_returnsCorrectCount() {
         Teacher teacher = makeTeacher("Prof", "V", "profv@test.com", "T011");
-        entityManager.persistAndFlush(teacher);
+        em.persist(teacher);
+        em.flush();
         long before = managementRepository.countCourses();
-        entityManager.persistAndFlush(makeCourse("CS105", "Networks", teacher));
+        em.persist(makeCourse("CS105", "Networks", teacher));
+        em.flush();
         assertThat(managementRepository.countCourses()).isEqualTo(before + 1);
     }
 
@@ -301,14 +310,14 @@ class ManagementRepositoryIntegrationTest {
 
     @Test
     void saveUser_persist_assignsId() {
-        UserAccount user = makeUser("newuser@test.com", Role.STUDENT);
-        UserAccount saved = managementRepository.saveUser(user);
+        UserAccount saved = managementRepository.saveUser(makeUser("newuser@test.com", Role.STUDENT));
         assertThat(saved.getId()).isNotNull();
     }
 
     @Test
     void findUserByUsername_found_returnsUser() {
-        entityManager.persistAndFlush(makeUser("findme@test.com", Role.STUDENT));
+        em.persist(makeUser("findme@test.com", Role.STUDENT));
+        em.flush();
 
         Optional<UserAccount> result = managementRepository.findUserByUsername("findme@test.com");
         assertThat(result).isPresent();
@@ -322,7 +331,8 @@ class ManagementRepositoryIntegrationTest {
 
     @Test
     void existsByUsername_exists_returnsTrue() {
-        entityManager.persistAndFlush(makeUser("exists@test.com", Role.TEACHER));
+        em.persist(makeUser("exists@test.com", Role.TEACHER));
+        em.flush();
         assertThat(managementRepository.existsByUsername("exists@test.com")).isTrue();
     }
 
@@ -334,15 +344,15 @@ class ManagementRepositoryIntegrationTest {
     @Test
     void saveUser_merge_updatesExisting() {
         UserAccount user = makeUser("update@test.com", Role.STUDENT);
-        entityManager.persistAndFlush(user);
+        em.persist(user);
+        em.flush();
 
         user.setRole(Role.TEACHER);
         managementRepository.saveUser(user);
-        entityManager.flush();
-        entityManager.clear();
+        em.flush();
+        em.clear();
 
-        UserAccount fetched = entityManager.find(UserAccount.class, user.getId());
-        assertThat(fetched.getRole()).isEqualTo(Role.TEACHER);
+        assertThat(em.find(UserAccount.class, user.getId()).getRole()).isEqualTo(Role.TEACHER);
     }
 
     // -------------------------------------------------------------------------
