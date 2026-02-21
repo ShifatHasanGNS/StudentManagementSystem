@@ -17,7 +17,6 @@ public class ManagementService {
         this.managementRepository = managementRepository;
     }
 
-    // Students
     public List<Student> getAllStudents() {
         return managementRepository.findAllStudents();
     }
@@ -25,7 +24,9 @@ public class ManagementService {
     public Student getStudentById(Long id) {
         return managementRepository
             .findStudentById(id)
-            .orElseThrow(() -> new RuntimeException("Student not found with id: " + id));
+            .orElseThrow(() ->
+                new RuntimeException("Student not found with id: " + id)
+            );
     }
 
     public Student saveStudent(Student student) {
@@ -33,8 +34,11 @@ public class ManagementService {
     }
 
     public void deleteStudent(Long id) {
-        // if not found, the delete method will silently do nothing; keep old behavior
-        Student s = managementRepository.findStudentById(id).orElseThrow(() -> new RuntimeException("Student not found with id: " + id));
+        Student s = managementRepository
+            .findStudentById(id)
+            .orElseThrow(() ->
+                new RuntimeException("Student not found with id: " + id)
+            );
         managementRepository.deleteStudentById(id);
     }
 
@@ -42,7 +46,6 @@ public class ManagementService {
         return managementRepository.countStudents();
     }
 
-    // Teachers
     public List<Teacher> getAllTeachers() {
         return managementRepository.findAllTeachers();
     }
@@ -50,7 +53,9 @@ public class ManagementService {
     public Teacher getTeacherById(Long id) {
         return managementRepository
             .findTeacherById(id)
-            .orElseThrow(() -> new RuntimeException("Teacher not found with id: " + id));
+            .orElseThrow(() ->
+                new RuntimeException("Teacher not found with id: " + id)
+            );
     }
 
     public Teacher saveTeacher(Teacher teacher) {
@@ -58,7 +63,11 @@ public class ManagementService {
     }
 
     public void deleteTeacher(Long id) {
-        Teacher t = managementRepository.findTeacherById(id).orElseThrow(() -> new RuntimeException("Teacher not found with id: " + id));
+        Teacher t = managementRepository
+            .findTeacherById(id)
+            .orElseThrow(() ->
+                new RuntimeException("Teacher not found with id: " + id)
+            );
         managementRepository.deleteTeacherById(id);
     }
 
@@ -66,7 +75,6 @@ public class ManagementService {
         return managementRepository.countTeachers();
     }
 
-    // Courses
     public List<Course> getAllCourses() {
         return managementRepository.findAllCourses();
     }
@@ -74,7 +82,9 @@ public class ManagementService {
     public Course getCourseById(Long id) {
         return managementRepository
             .findCourseById(id)
-            .orElseThrow(() -> new RuntimeException("Course not found with id: " + id));
+            .orElseThrow(() ->
+                new RuntimeException("Course not found with id: " + id)
+            );
     }
 
     public Course saveCourse(Course course) {
@@ -82,7 +92,11 @@ public class ManagementService {
     }
 
     public void deleteCourse(Long id) {
-        Course c = managementRepository.findCourseById(id).orElseThrow(() -> new RuntimeException("Course not found with id: " + id));
+        Course c = managementRepository
+            .findCourseById(id)
+            .orElseThrow(() ->
+                new RuntimeException("Course not found with id: " + id)
+            );
         managementRepository.deleteCourseById(id);
     }
 
@@ -90,7 +104,6 @@ public class ManagementService {
         return managementRepository.countCourses();
     }
 
-    // Departments
     public List<Department> getAllDepartments() {
         return managementRepository.findAllDepartments();
     }
@@ -98,7 +111,9 @@ public class ManagementService {
     public Department getDepartmentById(Long id) {
         return managementRepository
             .findDepartmentById(id)
-            .orElseThrow(() -> new RuntimeException("Department not found with id: " + id));
+            .orElseThrow(() ->
+                new RuntimeException("Department not found with id: " + id)
+            );
     }
 
     public Department saveDepartment(Department department) {
@@ -106,7 +121,11 @@ public class ManagementService {
     }
 
     public void deleteDepartment(Long id) {
-        Department d = managementRepository.findDepartmentById(id).orElseThrow(() -> new RuntimeException("Department not found with id: " + id));
+        Department d = managementRepository
+            .findDepartmentById(id)
+            .orElseThrow(() ->
+                new RuntimeException("Department not found with id: " + id)
+            );
         managementRepository.deleteDepartmentById(id);
     }
 

@@ -1,10 +1,10 @@
 package com.assignment.studentmanagementsystem.model;
 
+import com.assignment.studentmanagementsystem.model.Student;
+import com.assignment.studentmanagementsystem.model.Teacher;
 import jakarta.persistence.*;
 import java.util.List;
 import java.util.Objects;
-import com.assignment.studentmanagementsystem.model.Student;
-import com.assignment.studentmanagementsystem.model.Teacher;
 
 @Entity
 @Table(name = "courses")
@@ -89,6 +89,4 @@ public class Course {
     public void setEnrolledStudents(List<Student> enrolledStudents) {
         this.enrolledStudents = enrolledStudents;
     }
-
-
 }

@@ -1,8 +1,8 @@
 package com.assignment.studentmanagementsystem.controller;
 
+import com.assignment.studentmanagementsystem.repository.ManagementRepository;
 import com.assignment.studentmanagementsystem.security.UserAccount;
 import com.assignment.studentmanagementsystem.security.UserAccount.Role;
-import com.assignment.studentmanagementsystem.repository.ManagementRepository;
 import com.assignment.studentmanagementsystem.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,7 +17,10 @@ public class RegistrationController {
     private final UserService userService;
     private final ManagementRepository managementRepository;
 
-    public RegistrationController(UserService userService, ManagementRepository managementRepository) {
+    public RegistrationController(
+        UserService userService,
+        ManagementRepository managementRepository
+    ) {
         this.userService = userService;
         this.managementRepository = managementRepository;
     }
@@ -69,7 +72,6 @@ public class RegistrationController {
         }
     }
 
-    // Keep legacy /register/profile for backwards compatibility by redirecting to canonical /profile
     @GetMapping(path = "/profile", produces = "text/html")
     public String profileRedirect() {
         return "redirect:/profile";

@@ -1,8 +1,8 @@
 package com.assignment.studentmanagementsystem.service;
 
+import com.assignment.studentmanagementsystem.repository.ManagementRepository;
 import com.assignment.studentmanagementsystem.security.UserAccount;
 import com.assignment.studentmanagementsystem.security.UserAccount.Role;
-import com.assignment.studentmanagementsystem.repository.ManagementRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +20,11 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public UserAccount registerUser(String username, String password, Role role) {
+    public UserAccount registerUser(
+        String username,
+        String password,
+        Role role
+    ) {
         if (managementRepository.existsByUsername(username)) {
             throw new RuntimeException("Username already exists");
         }
