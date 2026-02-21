@@ -1,0 +1,22 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Student Management System</title>
+    </head>
+    <body>
+        <h1>Welcome to Student Management System</h1>
+        <div th:if="${#authorization.expression('isAuthenticated()')}">
+            <p>
+                You are logged in as:
+                <span th:text="${#authentication.name}"></span>
+            </p>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit">Logout</button>
+            </form>
+        </div>
+        <div th:unless="${#authorization.expression('isAuthenticated()')}">
+            <a th:href="@{/login}">Login</a> |
+            <a th:href="@{/register}">Register</a>
+        </div>
+    </body>
+</html>

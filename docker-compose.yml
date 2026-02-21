@@ -1,0 +1,38 @@
+services:
+    postgres:
+        image: postgres:15-alpine
+        container_name: student-management-db
+        environment:
+            POSTGRES_DB: studentdb
+            POSTGRES_USER: admin
+            POSTGRES_PASSWORD: admin123
+        ports:
+            - "5432:5432"
+        volumes:
+            - postgres-data:/var/lib/postgresql/data
+        networks:
+            - student-network
+
+    app:
+        build: .
+        container_name: student-management-app
+        depends_on:
+            - postgres
+        environment:
+            SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/studentdb
+            SPRING_DATASOURCE_USERNAME: admin
+            SPRING_DATASOURCE_PASSWORD: admin123
+            SPRING_JPA_HIBERNATE_DDL_AUTO: update
+            TZ: UTC
+        ports:
+            - "8080:8080"
+        networks:
+            - student-network
+        restart: unless-stopped
+
+volumes:
+    postgres-data:
+
+networks:
+    student-network:
+        driver: bridge

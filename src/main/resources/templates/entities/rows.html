@@ -1,0 +1,106 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+
+<body>
+    <div th:fragment="header">
+        <tr th:switch="${entityType}">
+            <th th:case="'student'">ID</th>
+            <th th:case="'student'">First Name</th>
+            <th th:case="'student'">Last Name</th>
+            <th th:case="'student'">Email</th>
+            <th th:case="'student'">Student ID</th>
+            <th th:case="'student'">Department</th>
+            <th th:case="'student'" sec:authorize="hasRole('TEACHER')">Actions</th>
+
+            <th th:case="'teacher'">ID</th>
+            <th th:case="'teacher'">First Name</th>
+            <th th:case="'teacher'">Last Name</th>
+            <th th:case="'teacher'">Email</th>
+            <th th:case="'teacher'">Employee ID</th>
+            <th th:case="'teacher'">Department</th>
+            <th th:case="'teacher'">Actions</th>
+
+            <th th:case="'department'">ID</th>
+            <th th:case="'department'">Name</th>
+            <th th:case="'department'">Description</th>
+            <th th:case="'department'">Actions</th>
+
+            <th th:case="'course'">ID</th>
+            <th th:case="'course'">Code</th>
+            <th th:case="'course'">Name</th>
+            <th th:case="'course'">Department</th>
+            <th th:case="'course'">Teacher</th>
+            <th th:case="'course'">Actions</th>
+        </tr>
+    </div>
+
+    <div th:fragment="rows">
+        <!-- Students -->
+        <tr th:if="${entityType == 'student'}" th:each="s : ${items}">
+            <td th:text="${s.id}"></td>
+            <td th:text="${s.firstName}"></td>
+            <td th:text="${s.lastName}"></td>
+            <td th:text="${s.email}"></td>
+            <td th:text="${s.studentId}"></td>
+            <td th:text="${s.department?.name}">N/A</td>
+            <td sec:authorize="hasRole('TEACHER')">
+                <a th:href="@{/students/view/{id}(id=${s.id})}" class="btn btn-sm btn-outline-primary me-1">View</a>
+                <a th:href="@{/students/edit/{id}(id=${s.id})}" class="btn btn-sm btn-outline-secondary me-1">Edit</a>
+                <a th:href="@{/students/delete/{id}(id=${s.id})}" class="btn btn-sm btn-outline-danger"
+                    onclick="return confirm('Are you sure you want to delete this student?');">Delete</a>
+            </td>
+        </tr>
+
+        <!-- Teachers -->
+        <tr th:if="${entityType == 'teacher'}" th:each="t : ${items}">
+            <td th:text="${t.id}"></td>
+            <td th:text="${t.firstName}"></td>
+            <td th:text="${t.lastName}"></td>
+            <td th:text="${t.email}"></td>
+            <td th:text="${t.employeeId}"></td>
+            <td th:text="${t.department?.name}">N/A</td>
+            <td>
+                <a th:href="@{/teachers/view/{id}(id=${t.id})}" class="btn btn-sm btn-outline-primary me-1">View</a>
+                <a th:href="@{/teachers/edit/{id}(id=${t.id})}" class="btn btn-sm btn-outline-secondary me-1">Edit</a>
+                <a th:href="@{/teachers/delete/{id}(id=${t.id})}" class="btn btn-sm btn-outline-danger"
+                    onclick="return confirm('Are you sure you want to delete this teacher?');">Delete</a>
+            </td>
+        </tr>
+
+        <!-- Departments -->
+        <tr th:if="${entityType == 'department'}" th:each="d : ${items}">
+            <td th:text="${d.id}"></td>
+            <td th:text="${d.name}"></td>
+            <td>
+                <span th:if="${d.description != null and d.description.length() > 50}"
+                    th:text="${#strings.substring(d.description, 0, 50)} + '...'"></span>
+                <span th:unless="${d.description != null and d.description.length() > 50}"
+                    th:text="${d.description}"></span>
+            </td>
+            <td>
+                <a th:href="@{/departments/view/{id}(id=${d.id})}" class="btn btn-sm btn-outline-primary me-1">View</a>
+                <a th:href="@{/departments/edit/{id}(id=${d.id})}"
+                    class="btn btn-sm btn-outline-secondary me-1">Edit</a>
+                <a th:href="@{/departments/delete/{id}(id=${d.id})}" class="btn btn-sm btn-outline-danger"
+                    onclick="return confirm('Are you sure you want to delete this department?');">Delete</a>
+            </td>
+        </tr>
+
+        <!-- Courses -->
+        <tr th:if="${entityType == 'course'}" th:each="c : ${items}">
+            <td th:text="${c.id}"></td>
+            <td th:text="${c.code}"></td>
+            <td th:text="${c.name}"></td>
+            <td th:text="${c.department?.name}">N/A</td>
+            <td th:text="${c.teacher?.firstName + ' ' + c.teacher?.lastName}">N/A</td>
+            <td>
+                <a th:href="@{/courses/view/{id}(id=${c.id})}" class="btn btn-sm btn-outline-primary me-1">View</a>
+                <a th:href="@{/courses/edit/{id}(id=${c.id})}" class="btn btn-sm btn-outline-secondary me-1">Edit</a>
+                <a th:href="@{/courses/delete/{id}(id=${c.id})}" class="btn btn-sm btn-outline-danger"
+                    onclick="return confirm('Are you sure you want to delete this course?');">Delete</a>
+            </td>
+        </tr>
+    </div>
+</body>
+
+</html>
