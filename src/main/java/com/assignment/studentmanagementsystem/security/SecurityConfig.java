@@ -11,7 +11,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity  // Fix: enables @PreAuthorize on controller methods
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Bean
@@ -23,7 +23,7 @@ public class SecurityConfig {
                     .requestMatchers(
                         "/",
                         "/home",
-                        "/login",        // Fix: was missing, unauthenticated users couldn't reach login
+                        "/login",
                         "/register/**",
                         "/css/**",
                         "/js/**",
@@ -35,10 +35,11 @@ public class SecurityConfig {
                     .anyRequest()
                     .authenticated()
             )
-            .formLogin(form -> form
-                .loginPage("/login")
-                .defaultSuccessUrl("/dashboard", false)
-                .permitAll()
+            .formLogin(form ->
+                form
+                    .loginPage("/login")
+                    .defaultSuccessUrl("/dashboard", false)
+                    .permitAll()
             )
             .logout(logout -> logout.permitAll());
 

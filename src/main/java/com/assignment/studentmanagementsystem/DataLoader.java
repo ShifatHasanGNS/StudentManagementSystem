@@ -1,8 +1,8 @@
 package com.assignment.studentmanagementsystem;
 
 import com.assignment.studentmanagementsystem.model.*;
-import com.assignment.studentmanagementsystem.security.UserAccount;
 import com.assignment.studentmanagementsystem.repository.ManagementRepository;
+import com.assignment.studentmanagementsystem.security.UserAccount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -14,12 +14,17 @@ import org.springframework.stereotype.Component;
 @Profile("!test")
 public class DataLoader implements CommandLineRunner {
 
-    private static final Logger logger = LoggerFactory.getLogger(DataLoader.class);
+    private static final Logger logger = LoggerFactory.getLogger(
+        DataLoader.class
+    );
 
     private final ManagementRepository managementRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public DataLoader(ManagementRepository managementRepository, PasswordEncoder passwordEncoder) {
+    public DataLoader(
+        ManagementRepository managementRepository,
+        PasswordEncoder passwordEncoder
+    ) {
         this.managementRepository = managementRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -29,7 +34,9 @@ public class DataLoader implements CommandLineRunner {
         if (managementRepository.countDepartments() == 0) {
             Department computerScience = new Department();
             computerScience.setName("Computer Science");
-            computerScience.setDescription("Department of Computer Science and Engineering");
+            computerScience.setDescription(
+                "Department of Computer Science and Engineering"
+            );
             managementRepository.saveDepartment(computerScience);
 
             Department mathematics = new Department();
@@ -40,7 +47,9 @@ public class DataLoader implements CommandLineRunner {
             logger.info("Created default departments");
         }
 
-        Department defaultDept = managementRepository.findAllDepartments().get(0);
+        Department defaultDept = managementRepository
+            .findAllDepartments()
+            .get(0);
 
         if (!managementRepository.existsByUsername("student@test.com")) {
             UserAccount studentUser = new UserAccount();
@@ -57,7 +66,9 @@ public class DataLoader implements CommandLineRunner {
             Student savedStudent = managementRepository.saveStudent(student);
 
             studentUser.setStudentId(savedStudent.getId());
-            UserAccount savedStudentUser = managementRepository.saveUser(studentUser);
+            UserAccount savedStudentUser = managementRepository.saveUser(
+                studentUser
+            );
             savedStudent.setUser(savedStudentUser);
             managementRepository.saveStudent(savedStudent);
 
@@ -79,7 +90,9 @@ public class DataLoader implements CommandLineRunner {
             Teacher savedTeacher = managementRepository.saveTeacher(teacher);
 
             teacherUser.setTeacherId(savedTeacher.getId());
-            UserAccount savedTeacherUser = managementRepository.saveUser(teacherUser);
+            UserAccount savedTeacherUser = managementRepository.saveUser(
+                teacherUser
+            );
             savedTeacher.setUser(savedTeacherUser);
             managementRepository.saveTeacher(savedTeacher);
 

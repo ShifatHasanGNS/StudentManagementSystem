@@ -1,12 +1,11 @@
 package com.assignment.studentmanagementsystem.security;
 
 import jakarta.persistence.*;
+import java.util.Collection;
+import java.util.Collections;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.Collection;
-import java.util.Collections;
 
 @Entity
 @Table(name = "users")
@@ -34,9 +33,8 @@ public class UserAccount implements UserDetails {
     @Column(nullable = false)
     private boolean enabled = true;
 
-    // Relationships to profile entities (optional for simplicity)
-    private Long studentId; // If this user is a student
-    private Long teacherId; // If this user is a teacher
+    private Long studentId;
+    private Long teacherId;
 
     public UserAccount() {}
 
@@ -46,7 +44,6 @@ public class UserAccount implements UserDetails {
         this.role = role;
     }
 
-    // Spring Security methods
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(

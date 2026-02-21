@@ -1,21 +1,18 @@
 package com.assignment.studentmanagementsystem.service;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import com.assignment.studentmanagementsystem.model.*;
 import com.assignment.studentmanagementsystem.repository.ManagementRepository;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-// File path: src/test/java/com/assignment/studentmanagementsystem/service/ManagementServiceTest.java
 
 @ExtendWith(MockitoExtension.class)
 class ManagementServiceTest {
@@ -60,25 +57,29 @@ class ManagementServiceTest {
         course.setTeacher(teacher);
     }
 
-    // --- Student Tests ---
-
     @Test
     void getAllStudents_returnsAll() {
-        when(managementRepository.findAllStudents()).thenReturn(List.of(student));
+        when(managementRepository.findAllStudents()).thenReturn(
+            List.of(student)
+        );
         List<Student> result = managementService.getAllStudents();
         assertThat(result).hasSize(1).contains(student);
     }
 
     @Test
     void getStudentById_found_returnsStudent() {
-        when(managementRepository.findStudentById(1L)).thenReturn(Optional.of(student));
+        when(managementRepository.findStudentById(1L)).thenReturn(
+            Optional.of(student)
+        );
         Student result = managementService.getStudentById(1L);
         assertThat(result.getEmail()).isEqualTo("john@test.com");
     }
 
     @Test
     void getStudentById_notFound_throwsException() {
-        when(managementRepository.findStudentById(99L)).thenReturn(Optional.empty());
+        when(managementRepository.findStudentById(99L)).thenReturn(
+            Optional.empty()
+        );
         assertThatThrownBy(() -> managementService.getStudentById(99L))
             .isInstanceOf(RuntimeException.class)
             .hasMessageContaining("Student not found");
@@ -94,14 +95,18 @@ class ManagementServiceTest {
 
     @Test
     void deleteStudent_found_deletesSuccessfully() {
-        when(managementRepository.findStudentById(1L)).thenReturn(Optional.of(student));
+        when(managementRepository.findStudentById(1L)).thenReturn(
+            Optional.of(student)
+        );
         managementService.deleteStudent(1L);
         verify(managementRepository).deleteStudentById(1L);
     }
 
     @Test
     void deleteStudent_notFound_throwsException() {
-        when(managementRepository.findStudentById(99L)).thenReturn(Optional.empty());
+        when(managementRepository.findStudentById(99L)).thenReturn(
+            Optional.empty()
+        );
         assertThatThrownBy(() -> managementService.deleteStudent(99L))
             .isInstanceOf(RuntimeException.class)
             .hasMessageContaining("Student not found");
@@ -114,23 +119,31 @@ class ManagementServiceTest {
         assertThat(managementService.getStudentCount()).isEqualTo(5L);
     }
 
-    // --- Teacher Tests ---
-
     @Test
     void getAllTeachers_returnsAll() {
-        when(managementRepository.findAllTeachers()).thenReturn(List.of(teacher));
-        assertThat(managementService.getAllTeachers()).hasSize(1).contains(teacher);
+        when(managementRepository.findAllTeachers()).thenReturn(
+            List.of(teacher)
+        );
+        assertThat(managementService.getAllTeachers())
+            .hasSize(1)
+            .contains(teacher);
     }
 
     @Test
     void getTeacherById_found_returnsTeacher() {
-        when(managementRepository.findTeacherById(1L)).thenReturn(Optional.of(teacher));
-        assertThat(managementService.getTeacherById(1L).getEmail()).isEqualTo("jane@test.com");
+        when(managementRepository.findTeacherById(1L)).thenReturn(
+            Optional.of(teacher)
+        );
+        assertThat(managementService.getTeacherById(1L).getEmail()).isEqualTo(
+            "jane@test.com"
+        );
     }
 
     @Test
     void getTeacherById_notFound_throwsException() {
-        when(managementRepository.findTeacherById(99L)).thenReturn(Optional.empty());
+        when(managementRepository.findTeacherById(99L)).thenReturn(
+            Optional.empty()
+        );
         assertThatThrownBy(() -> managementService.getTeacherById(99L))
             .isInstanceOf(RuntimeException.class)
             .hasMessageContaining("Teacher not found");
@@ -145,16 +158,21 @@ class ManagementServiceTest {
 
     @Test
     void deleteTeacher_found_deletesSuccessfully() {
-        when(managementRepository.findTeacherById(1L)).thenReturn(Optional.of(teacher));
+        when(managementRepository.findTeacherById(1L)).thenReturn(
+            Optional.of(teacher)
+        );
         managementService.deleteTeacher(1L);
         verify(managementRepository).deleteTeacherById(1L);
     }
 
     @Test
     void deleteTeacher_notFound_throwsException() {
-        when(managementRepository.findTeacherById(99L)).thenReturn(Optional.empty());
-        assertThatThrownBy(() -> managementService.deleteTeacher(99L))
-            .isInstanceOf(RuntimeException.class);
+        when(managementRepository.findTeacherById(99L)).thenReturn(
+            Optional.empty()
+        );
+        assertThatThrownBy(() ->
+            managementService.deleteTeacher(99L)
+        ).isInstanceOf(RuntimeException.class);
     }
 
     @Test
@@ -163,23 +181,29 @@ class ManagementServiceTest {
         assertThat(managementService.getTeacherCount()).isEqualTo(3L);
     }
 
-    // --- Course Tests ---
-
     @Test
     void getAllCourses_returnsAll() {
         when(managementRepository.findAllCourses()).thenReturn(List.of(course));
-        assertThat(managementService.getAllCourses()).hasSize(1).contains(course);
+        assertThat(managementService.getAllCourses())
+            .hasSize(1)
+            .contains(course);
     }
 
     @Test
     void getCourseById_found_returnsCourse() {
-        when(managementRepository.findCourseById(1L)).thenReturn(Optional.of(course));
-        assertThat(managementService.getCourseById(1L).getCode()).isEqualTo("CS101");
+        when(managementRepository.findCourseById(1L)).thenReturn(
+            Optional.of(course)
+        );
+        assertThat(managementService.getCourseById(1L).getCode()).isEqualTo(
+            "CS101"
+        );
     }
 
     @Test
     void getCourseById_notFound_throwsException() {
-        when(managementRepository.findCourseById(99L)).thenReturn(Optional.empty());
+        when(managementRepository.findCourseById(99L)).thenReturn(
+            Optional.empty()
+        );
         assertThatThrownBy(() -> managementService.getCourseById(99L))
             .isInstanceOf(RuntimeException.class)
             .hasMessageContaining("Course not found");
@@ -193,7 +217,9 @@ class ManagementServiceTest {
 
     @Test
     void deleteCourse_found_deletesSuccessfully() {
-        when(managementRepository.findCourseById(1L)).thenReturn(Optional.of(course));
+        when(managementRepository.findCourseById(1L)).thenReturn(
+            Optional.of(course)
+        );
         managementService.deleteCourse(1L);
         verify(managementRepository).deleteCourseById(1L);
     }
@@ -204,23 +230,31 @@ class ManagementServiceTest {
         assertThat(managementService.getCourseCount()).isEqualTo(10L);
     }
 
-    // --- Department Tests ---
-
     @Test
     void getAllDepartments_returnsAll() {
-        when(managementRepository.findAllDepartments()).thenReturn(List.of(department));
-        assertThat(managementService.getAllDepartments()).hasSize(1).contains(department);
+        when(managementRepository.findAllDepartments()).thenReturn(
+            List.of(department)
+        );
+        assertThat(managementService.getAllDepartments())
+            .hasSize(1)
+            .contains(department);
     }
 
     @Test
     void getDepartmentById_found_returnsDepartment() {
-        when(managementRepository.findDepartmentById(1L)).thenReturn(Optional.of(department));
-        assertThat(managementService.getDepartmentById(1L).getName()).isEqualTo("Computer Science");
+        when(managementRepository.findDepartmentById(1L)).thenReturn(
+            Optional.of(department)
+        );
+        assertThat(managementService.getDepartmentById(1L).getName()).isEqualTo(
+            "Computer Science"
+        );
     }
 
     @Test
     void getDepartmentById_notFound_throwsException() {
-        when(managementRepository.findDepartmentById(99L)).thenReturn(Optional.empty());
+        when(managementRepository.findDepartmentById(99L)).thenReturn(
+            Optional.empty()
+        );
         assertThatThrownBy(() -> managementService.getDepartmentById(99L))
             .isInstanceOf(RuntimeException.class)
             .hasMessageContaining("Department not found");
@@ -228,13 +262,19 @@ class ManagementServiceTest {
 
     @Test
     void saveDepartment_delegatesToRepository() {
-        when(managementRepository.saveDepartment(department)).thenReturn(department);
-        assertThat(managementService.saveDepartment(department)).isEqualTo(department);
+        when(managementRepository.saveDepartment(department)).thenReturn(
+            department
+        );
+        assertThat(managementService.saveDepartment(department)).isEqualTo(
+            department
+        );
     }
 
     @Test
     void deleteDepartment_found_deletesSuccessfully() {
-        when(managementRepository.findDepartmentById(1L)).thenReturn(Optional.of(department));
+        when(managementRepository.findDepartmentById(1L)).thenReturn(
+            Optional.of(department)
+        );
         managementService.deleteDepartment(1L);
         verify(managementRepository).deleteDepartmentById(1L);
     }

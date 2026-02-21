@@ -4,7 +4,7 @@ import com.assignment.studentmanagementsystem.security.UserAccount;
 import jakarta.persistence.*;
 import java.util.List;
 
-@Entity
+@Entity(name = "Teacher")
 @Table(name = "teachers")
 public class Teacher {
 

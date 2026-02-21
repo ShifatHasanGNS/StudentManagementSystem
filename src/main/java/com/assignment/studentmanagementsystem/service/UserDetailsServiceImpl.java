@@ -1,7 +1,7 @@
 package com.assignment.studentmanagementsystem.service;
 
-import com.assignment.studentmanagementsystem.security.UserAccount;
 import com.assignment.studentmanagementsystem.repository.ManagementRepository;
+import com.assignment.studentmanagementsystem.security.UserAccount;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

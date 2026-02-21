@@ -1,11 +1,11 @@
 package com.assignment.studentmanagementsystem.controller;
 
-import com.assignment.studentmanagementsystem.security.UserAccount;
-import com.assignment.studentmanagementsystem.security.UserAccount.Role;
-import com.assignment.studentmanagementsystem.repository.ManagementRepository;
-import com.assignment.studentmanagementsystem.service.ManagementService;
 import com.assignment.studentmanagementsystem.model.Student;
 import com.assignment.studentmanagementsystem.model.Teacher;
+import com.assignment.studentmanagementsystem.repository.ManagementRepository;
+import com.assignment.studentmanagementsystem.security.UserAccount;
+import com.assignment.studentmanagementsystem.security.UserAccount.Role;
+import com.assignment.studentmanagementsystem.service.ManagementService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -13,19 +13,24 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class HomeController {
 
-    private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
+    private static final Logger logger = LoggerFactory.getLogger(
+        HomeController.class
+    );
 
     private final ManagementService managementService;
     private final ManagementRepository managementRepository;
 
-    public HomeController(ManagementService managementService, ManagementRepository managementRepository) {
+    public HomeController(
+        ManagementService managementService,
+        ManagementRepository managementRepository
+    ) {
         this.managementService = managementService;
         this.managementRepository = managementRepository;
     }
@@ -48,22 +53,34 @@ public class HomeController {
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
         try {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            Authentication auth =
+                SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
 
             logger.debug("Dashboard accessed by user: {}", username);
 
             UserAccount user = managementRepository
                 .findUserByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+                .orElseThrow(() ->
+                    new RuntimeException("User not found: " + username)
+                );
 
             model.addAttribute("username", username);
             model.addAttribute("role", user.getRole().name());
 
             if (user.getRole() == Role.TEACHER) {
-                model.addAttribute("studentCount", managementService.getStudentCount());
-                model.addAttribute("teacherCount", managementService.getTeacherCount());
-                model.addAttribute("courseCount", managementService.getCourseCount());
+                model.addAttribute(
+                    "studentCount",
+                    managementService.getStudentCount()
+                );
+                model.addAttribute(
+                    "teacherCount",
+                    managementService.getTeacherCount()
+                );
+                model.addAttribute(
+                    "courseCount",
+                    managementService.getCourseCount()
+                );
             }
 
             return "dashboard";
@@ -75,25 +92,32 @@ public class HomeController {
 
     @GetMapping("/profile")
     public String viewProfile(Model model) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Authentication auth =
+            SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
 
-        UserAccount user = managementRepository.findUserByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User not found: " + username));
+        UserAccount user = managementRepository
+            .findUserByUsername(username)
+            .orElseThrow(() ->
+                new RuntimeException("User not found: " + username)
+            );
 
         model.addAttribute("user", user);
 
-        // Always indicate role, but only populate entity details if present
         if (user.getRole() == Role.STUDENT) {
             model.addAttribute("isStudent", true);
             if (user.getStudentId() != null) {
-                Student student = managementService.getStudentById(user.getStudentId());
+                Student student = managementService.getStudentById(
+                    user.getStudentId()
+                );
                 model.addAttribute("student", student);
             }
         } else if (user.getRole() == Role.TEACHER) {
             model.addAttribute("isTeacher", true);
             if (user.getTeacherId() != null) {
-                Teacher teacher = managementService.getTeacherById(user.getTeacherId());
+                Teacher teacher = managementService.getTeacherById(
+                    user.getTeacherId()
+                );
                 model.addAttribute("teacher", teacher);
             }
         }
@@ -103,23 +127,29 @@ public class HomeController {
 
     @GetMapping("/profile/edit")
     public String editProfile(Model model) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Authentication auth =
+            SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
 
-        UserAccount user = managementRepository.findUserByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User not found: " + username));
+        UserAccount user = managementRepository
+            .findUserByUsername(username)
+            .orElseThrow(() ->
+                new RuntimeException("User not found: " + username)
+            );
 
         if (user.getRole() == Role.STUDENT) {
             Student student;
             if (user.getStudentId() != null) {
                 student = managementService.getStudentById(user.getStudentId());
             } else {
-                // allow creating a student profile for users without one
                 student = new Student();
             }
             model.addAttribute("student", student);
             model.addAttribute("entity", student);
-            model.addAttribute("departments", managementService.getAllDepartments());
+            model.addAttribute(
+                "departments",
+                managementService.getAllDepartments()
+            );
             model.addAttribute("entityType", "student");
             model.addAttribute("saveUrl", "/profile/save/student");
             model.addAttribute("listUrl", "/profile");
@@ -134,7 +164,10 @@ public class HomeController {
             }
             model.addAttribute("teacher", teacher);
             model.addAttribute("entity", teacher);
-            model.addAttribute("departments", managementService.getAllDepartments());
+            model.addAttribute(
+                "departments",
+                managementService.getAllDepartments()
+            );
             model.addAttribute("entityType", "teacher");
             model.addAttribute("saveUrl", "/profile/save/teacher");
             model.addAttribute("listUrl", "/profile");
@@ -147,13 +180,16 @@ public class HomeController {
 
     @PostMapping("/profile/save/student")
     public String saveProfileStudent(@ModelAttribute Student student) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Authentication auth =
+            SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
-        UserAccount user = managementRepository.findUserByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User not found: " + username));
+        UserAccount user = managementRepository
+            .findUserByUsername(username)
+            .orElseThrow(() ->
+                new RuntimeException("User not found: " + username)
+            );
 
         if (user.getStudentId() == null) {
-            // create a new student profile and attach to user
             Student saved = managementService.saveStudent(student);
             saved.setUser(user);
             managementService.saveStudent(saved);
@@ -161,7 +197,9 @@ public class HomeController {
             managementRepository.saveUser(user);
         } else {
             if (!user.getStudentId().equals(student.getId())) {
-                throw new RuntimeException("Not authorized to edit this student");
+                throw new RuntimeException(
+                    "Not authorized to edit this student"
+                );
             }
             managementService.saveStudent(student);
         }
@@ -171,10 +209,14 @@ public class HomeController {
 
     @PostMapping("/profile/save/teacher")
     public String saveProfileTeacher(@ModelAttribute Teacher teacher) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Authentication auth =
+            SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
-        UserAccount user = managementRepository.findUserByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User not found: " + username));
+        UserAccount user = managementRepository
+            .findUserByUsername(username)
+            .orElseThrow(() ->
+                new RuntimeException("User not found: " + username)
+            );
 
         if (user.getTeacherId() == null) {
             Teacher saved = managementService.saveTeacher(teacher);
@@ -184,7 +226,9 @@ public class HomeController {
             managementRepository.saveUser(user);
         } else {
             if (!user.getTeacherId().equals(teacher.getId())) {
-                throw new RuntimeException("Not authorized to edit this teacher");
+                throw new RuntimeException(
+                    "Not authorized to edit this teacher"
+                );
             }
             managementService.saveTeacher(teacher);
         }
@@ -196,7 +240,7 @@ public class HomeController {
     @ResponseBody
     public String test() {
         return (
-            "✅ Application is running! Endpoints:\n" +
+            "Application is running! Endpoints:\n" +
             "- /login - Login page\n" +
             "- /register - Registration\n" +
             "- /dashboard - Dashboard (after login)\n" +

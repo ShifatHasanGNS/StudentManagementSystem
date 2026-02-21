@@ -1,35 +1,34 @@
 package com.assignment.studentmanagementsystem.repository;
 
+import static org.assertj.core.api.Assertions.*;
+
 import com.assignment.studentmanagementsystem.model.*;
 import com.assignment.studentmanagementsystem.security.UserAccount;
 import com.assignment.studentmanagementsystem.security.UserAccount.Role;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
-
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.*;
-
-// File path: src/test/java/com/assignment/studentmanagementsystem/repository/ManagementRepositoryIntegrationTest.java
 
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@TestPropertySource(properties = {
-    "spring.datasource.url=jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1",
-    "spring.datasource.driver-class-name=org.h2.Driver",
-    "spring.jpa.hibernate.ddl-auto=create-drop"
-})
+@TestPropertySource(
+    properties = {
+        "spring.datasource.url=jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1",
+        "spring.datasource.driver-class-name=org.h2.Driver",
+        "spring.jpa.hibernate.ddl-auto=create-drop",
+    }
+)
 class ManagementRepositoryIntegrationTest {
 
     @Autowired
@@ -46,10 +45,6 @@ class ManagementRepositoryIntegrationTest {
         em.persist(department);
         em.flush();
     }
-
-    // -------------------------------------------------------------------------
-    // Department
-    // -------------------------------------------------------------------------
 
     @Test
     void saveDepartment_persist_assignsId() {
@@ -79,7 +74,9 @@ class ManagementRepositoryIntegrationTest {
 
     @Test
     void findDepartmentById_found_returnsDepartment() {
-        Optional<Department> result = managementRepository.findDepartmentById(department.getId());
+        Optional<Department> result = managementRepository.findDepartmentById(
+            department.getId()
+        );
         assertThat(result).isPresent();
         assertThat(result.get().getName()).isEqualTo("Computer Science");
     }
@@ -107,16 +104,16 @@ class ManagementRepositoryIntegrationTest {
         long before = managementRepository.countDepartments();
         em.persist(new Department("Biology", "Bio Dept"));
         em.flush();
-        assertThat(managementRepository.countDepartments()).isEqualTo(before + 1);
+        assertThat(managementRepository.countDepartments()).isEqualTo(
+            before + 1
+        );
     }
-
-    // -------------------------------------------------------------------------
-    // Student
-    // -------------------------------------------------------------------------
 
     @Test
     void saveStudent_persist_assignsId() {
-        Student saved = managementRepository.saveStudent(makeStudent("Alice", "Smith", "alice@test.com", "S001"));
+        Student saved = managementRepository.saveStudent(
+            makeStudent("Alice", "Smith", "alice@test.com", "S001")
+        );
         assertThat(saved.getId()).isNotNull();
     }
 
@@ -131,7 +128,9 @@ class ManagementRepositoryIntegrationTest {
         em.flush();
         em.clear();
 
-        assertThat(em.find(Student.class, student.getId()).getFirstName()).isEqualTo("Robert");
+        assertThat(
+            em.find(Student.class, student.getId()).getFirstName()
+        ).isEqualTo("Robert");
     }
 
     @Test
@@ -139,7 +138,9 @@ class ManagementRepositoryIntegrationTest {
         em.persist(makeStudent("C", "D", "cd@test.com", "S003"));
         em.persist(makeStudent("E", "F", "ef@test.com", "S004"));
         em.flush();
-        assertThat(managementRepository.findAllStudents()).hasSizeGreaterThanOrEqualTo(2);
+        assertThat(
+            managementRepository.findAllStudents()
+        ).hasSizeGreaterThanOrEqualTo(2);
     }
 
     @Test
@@ -148,7 +149,9 @@ class ManagementRepositoryIntegrationTest {
         em.persist(student);
         em.flush();
 
-        Optional<Student> result = managementRepository.findStudentById(student.getId());
+        Optional<Student> result = managementRepository.findStudentById(
+            student.getId()
+        );
         assertThat(result).isPresent();
         assertThat(result.get().getEmail()).isEqualTo("john@test.com");
     }
@@ -173,8 +176,9 @@ class ManagementRepositoryIntegrationTest {
 
     @Test
     void deleteStudentById_nonExistentId_doesNothing() {
-        assertThatCode(() -> managementRepository.deleteStudentById(999L))
-            .doesNotThrowAnyException();
+        assertThatCode(() ->
+            managementRepository.deleteStudentById(999L)
+        ).doesNotThrowAnyException();
     }
 
     @Test
@@ -185,13 +189,11 @@ class ManagementRepositoryIntegrationTest {
         assertThat(managementRepository.countStudents()).isEqualTo(before + 1);
     }
 
-    // -------------------------------------------------------------------------
-    // Teacher
-    // -------------------------------------------------------------------------
-
     @Test
     void saveTeacher_persist_assignsId() {
-        Teacher saved = managementRepository.saveTeacher(makeTeacher("Prof", "Smith", "prof@test.com", "T001"));
+        Teacher saved = managementRepository.saveTeacher(
+            makeTeacher("Prof", "Smith", "prof@test.com", "T001")
+        );
         assertThat(saved.getId()).isNotNull();
     }
 
@@ -206,7 +208,9 @@ class ManagementRepositoryIntegrationTest {
         em.flush();
         em.clear();
 
-        assertThat(em.find(Teacher.class, teacher.getId()).getFirstName()).isEqualTo("New");
+        assertThat(
+            em.find(Teacher.class, teacher.getId()).getFirstName()
+        ).isEqualTo("New");
     }
 
     @Test
@@ -215,7 +219,9 @@ class ManagementRepositoryIntegrationTest {
         em.persist(teacher);
         em.flush();
 
-        Optional<Teacher> result = managementRepository.findTeacherById(teacher.getId());
+        Optional<Teacher> result = managementRepository.findTeacherById(
+            teacher.getId()
+        );
         assertThat(result).isPresent();
         assertThat(result.get().getEmployeeId()).isEqualTo("T004");
     }
@@ -227,7 +233,12 @@ class ManagementRepositoryIntegrationTest {
 
     @Test
     void deleteTeacherById_removesFromDatabase() {
-        Teacher teacher = makeTeacher("Del", "Me", "delteacher@test.com", "T005");
+        Teacher teacher = makeTeacher(
+            "Del",
+            "Me",
+            "delteacher@test.com",
+            "T005"
+        );
         em.persist(teacher);
         em.flush();
 
@@ -246,17 +257,15 @@ class ManagementRepositoryIntegrationTest {
         assertThat(managementRepository.countTeachers()).isEqualTo(before + 1);
     }
 
-    // -------------------------------------------------------------------------
-    // Course
-    // -------------------------------------------------------------------------
-
     @Test
     void saveCourse_persist_assignsId() {
         Teacher teacher = makeTeacher("Prof", "X", "profx@test.com", "T007");
         em.persist(teacher);
         em.flush();
 
-        Course saved = managementRepository.saveCourse(makeCourse("CS101", "Intro to CS", teacher));
+        Course saved = managementRepository.saveCourse(
+            makeCourse("CS101", "Intro to CS", teacher)
+        );
         assertThat(saved.getId()).isNotNull();
     }
 
@@ -268,7 +277,9 @@ class ManagementRepositoryIntegrationTest {
         em.persist(course);
         em.flush();
 
-        Optional<Course> result = managementRepository.findCourseById(course.getId());
+        Optional<Course> result = managementRepository.findCourseById(
+            course.getId()
+        );
         assertThat(result).isPresent();
         assertThat(result.get().getCode()).isEqualTo("CS103");
     }
@@ -304,13 +315,11 @@ class ManagementRepositoryIntegrationTest {
         assertThat(managementRepository.countCourses()).isEqualTo(before + 1);
     }
 
-    // -------------------------------------------------------------------------
-    // UserAccount
-    // -------------------------------------------------------------------------
-
     @Test
     void saveUser_persist_assignsId() {
-        UserAccount saved = managementRepository.saveUser(makeUser("newuser@test.com", Role.STUDENT));
+        UserAccount saved = managementRepository.saveUser(
+            makeUser("newuser@test.com", Role.STUDENT)
+        );
         assertThat(saved.getId()).isNotNull();
     }
 
@@ -319,26 +328,34 @@ class ManagementRepositoryIntegrationTest {
         em.persist(makeUser("findme@test.com", Role.STUDENT));
         em.flush();
 
-        Optional<UserAccount> result = managementRepository.findUserByUsername("findme@test.com");
+        Optional<UserAccount> result = managementRepository.findUserByUsername(
+            "findme@test.com"
+        );
         assertThat(result).isPresent();
         assertThat(result.get().getRole()).isEqualTo(Role.STUDENT);
     }
 
     @Test
     void findUserByUsername_notFound_returnsEmpty() {
-        assertThat(managementRepository.findUserByUsername("ghost@test.com")).isEmpty();
+        assertThat(
+            managementRepository.findUserByUsername("ghost@test.com")
+        ).isEmpty();
     }
 
     @Test
     void existsByUsername_exists_returnsTrue() {
         em.persist(makeUser("exists@test.com", Role.TEACHER));
         em.flush();
-        assertThat(managementRepository.existsByUsername("exists@test.com")).isTrue();
+        assertThat(
+            managementRepository.existsByUsername("exists@test.com")
+        ).isTrue();
     }
 
     @Test
     void existsByUsername_notExists_returnsFalse() {
-        assertThat(managementRepository.existsByUsername("nobody@test.com")).isFalse();
+        assertThat(
+            managementRepository.existsByUsername("nobody@test.com")
+        ).isFalse();
     }
 
     @Test
@@ -352,14 +369,17 @@ class ManagementRepositoryIntegrationTest {
         em.flush();
         em.clear();
 
-        assertThat(em.find(UserAccount.class, user.getId()).getRole()).isEqualTo(Role.TEACHER);
+        assertThat(
+            em.find(UserAccount.class, user.getId()).getRole()
+        ).isEqualTo(Role.TEACHER);
     }
 
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
-
-    private Student makeStudent(String first, String last, String email, String studentId) {
+    private Student makeStudent(
+        String first,
+        String last,
+        String email,
+        String studentId
+    ) {
         Student s = new Student();
         s.setFirstName(first);
         s.setLastName(last);
@@ -369,7 +389,12 @@ class ManagementRepositoryIntegrationTest {
         return s;
     }
 
-    private Teacher makeTeacher(String first, String last, String email, String employeeId) {
+    private Teacher makeTeacher(
+        String first,
+        String last,
+        String email,
+        String employeeId
+    ) {
         Teacher t = new Teacher();
         t.setFirstName(first);
         t.setLastName(last);

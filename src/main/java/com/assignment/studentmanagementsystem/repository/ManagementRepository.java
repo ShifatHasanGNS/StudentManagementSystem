@@ -1,15 +1,15 @@
 package com.assignment.studentmanagementsystem.repository;
 
 import com.assignment.studentmanagementsystem.model.Course;
+import com.assignment.studentmanagementsystem.model.Department;
 import com.assignment.studentmanagementsystem.model.Student;
 import com.assignment.studentmanagementsystem.model.Teacher;
-import com.assignment.studentmanagementsystem.model.Department;
 import com.assignment.studentmanagementsystem.security.UserAccount;
-import java.util.List;
-import java.util.Optional;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -19,9 +19,10 @@ public class ManagementRepository {
     @PersistenceContext
     private EntityManager em;
 
-    // Students
     public List<Student> findAllStudents() {
-        return em.createQuery("select s from Student s", Student.class).getResultList();
+        return em
+            .createQuery("select s from Student s", Student.class)
+            .getResultList();
     }
 
     public Optional<Student> findStudentById(Long id) {
@@ -42,12 +43,15 @@ public class ManagementRepository {
     }
 
     public long countStudents() {
-        return em.createQuery("select count(s) from Student s", Long.class).getSingleResult();
+        return em
+            .createQuery("select count(s) from Student s", Long.class)
+            .getSingleResult();
     }
 
-    // Teachers
     public List<Teacher> findAllTeachers() {
-        return em.createQuery("select t from Teacher t", Teacher.class).getResultList();
+        return em
+            .createQuery("select t from Teacher t", Teacher.class)
+            .getResultList();
     }
 
     public Optional<Teacher> findTeacherById(Long id) {
@@ -68,12 +72,15 @@ public class ManagementRepository {
     }
 
     public long countTeachers() {
-        return em.createQuery("select count(t) from Teacher t", Long.class).getSingleResult();
+        return em
+            .createQuery("select count(t) from Teacher t", Long.class)
+            .getSingleResult();
     }
 
-    // Courses
     public List<Course> findAllCourses() {
-        return em.createQuery("select c from Course c", Course.class).getResultList();
+        return em
+            .createQuery("select c from Course c", Course.class)
+            .getResultList();
     }
 
     public Optional<Course> findCourseById(Long id) {
@@ -94,12 +101,15 @@ public class ManagementRepository {
     }
 
     public long countCourses() {
-        return em.createQuery("select count(c) from Course c", Long.class).getSingleResult();
+        return em
+            .createQuery("select count(c) from Course c", Long.class)
+            .getSingleResult();
     }
 
-    // Departments
     public List<Department> findAllDepartments() {
-        return em.createQuery("select d from Department d", Department.class).getResultList();
+        return em
+            .createQuery("select d from Department d", Department.class)
+            .getResultList();
     }
 
     public Optional<Department> findDepartmentById(Long id) {
@@ -120,12 +130,17 @@ public class ManagementRepository {
     }
 
     public long countDepartments() {
-        return em.createQuery("select count(d) from Department d", Long.class).getSingleResult();
+        return em
+            .createQuery("select count(d) from Department d", Long.class)
+            .getSingleResult();
     }
 
-    // Users
     public Optional<UserAccount> findUserByUsername(String username) {
-        List<UserAccount> list = em.createQuery("select u from UserAccount u where u.username = :u", UserAccount.class)
+        List<UserAccount> list = em
+            .createQuery(
+                "select u from UserAccount u where u.username = :u",
+                UserAccount.class
+            )
             .setParameter("u", username)
             .setMaxResults(1)
             .getResultList();
@@ -133,7 +148,11 @@ public class ManagementRepository {
     }
 
     public boolean existsByUsername(String username) {
-        Long count = em.createQuery("select count(u) from UserAccount u where u.username = :u", Long.class)
+        Long count = em
+            .createQuery(
+                "select count(u) from UserAccount u where u.username = :u",
+                Long.class
+            )
             .setParameter("u", username)
             .getSingleResult();
         return count != null && count > 0;

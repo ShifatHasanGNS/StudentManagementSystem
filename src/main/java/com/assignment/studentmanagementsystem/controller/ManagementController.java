@@ -16,15 +16,15 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 public class ManagementController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ManagementController.class);
+    private static final Logger logger = LoggerFactory.getLogger(
+        ManagementController.class
+    );
 
     private final ManagementService managementService;
 
     public ManagementController(ManagementService managementService) {
         this.managementService = managementService;
     }
-
-    // --- Students ---
 
     @GetMapping("/students")
     @PreAuthorize("hasRole('TEACHER') or hasRole('STUDENT')")
@@ -96,8 +96,6 @@ public class ManagementController {
         return "entities/entity";
     }
 
-    // --- Teachers ---
-
     @GetMapping("/teachers")
     @PreAuthorize("hasRole('TEACHER')")
     public String listTeachers(Model model) {
@@ -167,8 +165,6 @@ public class ManagementController {
         model.addAttribute("mode", "view");
         return "entities/entity";
     }
-
-    // --- Courses ---
 
     @GetMapping("/courses")
     @PreAuthorize("hasRole('TEACHER')")
@@ -243,8 +239,6 @@ public class ManagementController {
         model.addAttribute("mode", "view");
         return "entities/entity";
     }
-
-    // --- Departments ---
 
     @GetMapping("/departments")
     @PreAuthorize("hasRole('TEACHER')")
